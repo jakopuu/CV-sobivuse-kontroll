@@ -20,6 +20,8 @@ export async function analyze(
 ): Promise<AnalysisResult> {
   if (useMockApi) {
     await wait(MOCK_DELAY_MS, signal);
+    const forced = mockErrorFromUrl();
+    if (forced) throw new AnalyzeError(forced);
     return mockAnalysis;
   }
 
@@ -53,4 +55,17 @@ function wait(ms: number, signal?: AbortSignal): Promise<void> {
       reject(signal.reason);
     });
   });
+}
+
+const MOCK_ERRORS: Record<string, AnalyzeErrorKind> = {
+  "400": "invalid_input",
+  "429": "rate_limited",
+  "500": "server",
+  network: "network",
+};
+
+/** Mock mode only: `?mock_error=429` (or 400, 500, network) previews an error state. */
+function mockErrorFromUrl(): AnalyzeErrorKind | null {
+  const value = new URLSearchParams(window.location.search).get("mock_error");
+  return value ? (MOCK_ERRORS[value] ?? null) : null;
 }

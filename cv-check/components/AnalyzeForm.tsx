@@ -2,7 +2,9 @@
 
 import type { FormEvent } from "react";
 import { Lock } from "lucide-react";
+import type { AnalyzeErrorKind } from "@/lib/api";
 import { INPUT_MIN_CHARS } from "@/lib/types";
+import { ErrorNotice } from "./ErrorNotice";
 import { InputField, isValidInput } from "./InputField";
 import { LoadingSteps } from "./LoadingSteps";
 
@@ -14,6 +16,7 @@ interface AnalyzeFormProps {
   onSubmit: () => void;
   loading: boolean;
   onCancel: () => void;
+  error: AnalyzeErrorKind | null;
 }
 
 export function AnalyzeForm({
@@ -24,6 +27,7 @@ export function AnalyzeForm({
   onSubmit,
   loading,
   onCancel,
+  error,
 }: AnalyzeFormProps) {
   const canSubmit = isValidInput(jobText) && isValidInput(cvText);
 
@@ -52,6 +56,8 @@ export function AnalyzeForm({
           disabled={loading}
         />
       </div>
+
+      {error && <ErrorNotice kind={error} />}
 
       <div className="mt-8 flex items-baseline gap-3">
         <span aria-hidden className="w-4 text-[17px] font-semibold text-brand tabular-nums">

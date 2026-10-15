@@ -39,6 +39,14 @@ export function Analyzer() {
     }
   }
 
+  // Editing the text dismisses a previous error.
+  function handleTextChange(setter: (value: string) => void) {
+    return (value: string) => {
+      setter(value);
+      if (state.status === "error") setState({ status: "idle" });
+    };
+  }
+
   function handleCancel() {
     controllerRef.current?.abort();
     setState({ status: "idle" });
@@ -52,11 +60,12 @@ export function Analyzer() {
     <AnalyzeForm
       jobText={jobText}
       cvText={cvText}
-      onJobTextChange={setJobText}
-      onCvTextChange={setCvText}
+      onJobTextChange={handleTextChange(setJobText)}
+      onCvTextChange={handleTextChange(setCvText)}
       onSubmit={handleSubmit}
       loading={state.status === "loading"}
       onCancel={handleCancel}
+      error={state.status === "error" ? state.kind : null}
     />
   );
 }
