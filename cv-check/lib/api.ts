@@ -1,4 +1,4 @@
-import { supabaseHeaders, supabaseUrl, useMockApi } from "./config";
+import { useMockApi } from "./config";
 import { mockAnalysis } from "./mock";
 import { parseAnalysisResult, type AnalysisResult, type AnalyzeRequest } from "./types";
 
@@ -13,8 +13,8 @@ export class AnalyzeError extends Error {
 
 // Long enough in mock mode to see every loading step.
 const MOCK_DELAY_MS = 9_000;
-// Upper bound for a stuck edge function or LLM call; normal runs take 10-20 s.
-const REQUEST_TIMEOUT_MS = 60_000;
+// A bit above the route's maxDuration (60 s), so the server's own 500 arrives first.
+const REQUEST_TIMEOUT_MS = 65_000;
 
 export async function analyze(
   request: AnalyzeRequest,
@@ -36,9 +36,9 @@ export async function analyze(
   try {
     let response: Response;
     try {
-      response = await fetch(`${supabaseUrl}/functions/v1/analyze`, {
+      response = await fetch("/api/analyze", {
         method: "POST",
-        headers: supabaseHeaders(),
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(request),
         signal: controller.signal,
       });

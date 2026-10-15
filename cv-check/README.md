@@ -11,25 +11,26 @@ npm run dev
 
 Ava [http://localhost:3000](http://localhost:3000).
 
-## Supabase'i ühendamine
+## Keskkonnamuutujad
 
-Ilma keskkonnamuutujateta töötab rakendus **võltsandmetega**, nii et kasutajaliidest saab arendada ka ilma backendita. Päris API kasutamiseks kopeeri `.env.example` failiks `.env.local` ja täida väärtused:
+Kopeeri `.env.example` failiks `.env.local` ja täida väärtused.
 
-```bash
-NEXT_PUBLIC_SUPABASE_URL=https://<projekt>.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon võti>
-```
+| Muutuja | Kus | Milleks |
+|---|---|---|
+| `NEXT_PUBLIC_MOCK_API=1` | brauser | Kogu UI töötab võltsandmetega, backendi ega Supabase'i pole vaja. |
+| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | brauser | Tagasiside ja ootenimekirja kirjutamine. Avalikud, RLS lubab ainult `insert`. |
+| `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `IP_HASH_SALT` | server | `app/api/analyze` route: limiit ja tulemuse salvestamine. |
+| `LLM_API_KEY` | server | AI kutse. Tühjana töötab backend demorežiimis. |
 
-Mõlemad väärtused on avalikud: andmeid kaitsevad RLS ja Edge Function. `LLM_API_KEY` ja `service_role` võti ei tohi kunagi siia sattuda.
+Serveri muutujatele ei tohi kunagi `NEXT_PUBLIC_` eesliidet panna, muidu jõuavad need brauserisse.
 
-Frontend eeldab Supabase'ilt järgmist:
+Frontend eeldab:
 
 | Mida | Kuidas |
 |---|---|
-| `POST /functions/v1/analyze` | Päring `{ job_text, cv_text }`, vastus vastavalt lepingule (`lib/types.ts`). Vead: `400`, `429`, `500`. |
+| `POST /api/analyze` | Päring `{ job_text, cv_text }`, vastus vastavalt lepingule (`lib/types.ts`). Vead: `400`, `429`, `500`. |
 | Tabel `feedback` | `anon` võib teha ainult `insert`: `analysis_id`, `helpful`, `comment` |
 | Tabel `waitlist` | `anon` võib teha ainult `insert`: `email` (unikaalne, korduv e-post annab `409`) |
-| CORS | Edge Function lubab ainult ühe päritolu (secret `ALLOWED_ORIGIN`). See peab olema `http://localhost:3000`. |
 
 ## Veaolekute eelvaade
 
@@ -42,6 +43,7 @@ app/              leht, layout ja disainimuutujad (globals.css)
 components/       vorm, laadimisolek, veateade
 components/results/  tulemuse vaade ja selle osad
 lib/              API klient, Supabase'i insertid, tüübid, võltsandmed
+app/api/analyze/  backend: AI analüüs (backendi inimese kood)
 ```
 
 ## Tootmisversioon kohalikus arvutis

@@ -1,6 +1,6 @@
 import type { AnalysisResult } from "./types";
 
-// Mirrors the contract example so the UI can be built before the edge function exists.
+// Mirrors the contract example so the UI works without the backend (NEXT_PUBLIC_MOCK_API=1).
 export const mockAnalysis: AnalysisResult = {
   id: "00000000-0000-4000-8000-000000000000",
   match_score: 72,
