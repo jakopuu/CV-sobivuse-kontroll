@@ -28,6 +28,8 @@ export function Analyzer() {
         { job_text: jobText.trim(), cv_text: cvText.trim() },
         controller.signal,
       );
+      // The response can land in the same tick as a cancel; the cancel wins.
+      if (controller.signal.aborted) return;
       setState({ status: "success", result });
     } catch (error) {
       // A cancelled request returns the user to the form without an error.

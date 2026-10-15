@@ -1,6 +1,6 @@
 import { supabaseHeaders, supabaseUrl, useMockApi } from "./config";
 import { mockAnalysis } from "./mock";
-import { isAnalysisResult, type AnalysisResult, type AnalyzeRequest } from "./types";
+import { parseAnalysisResult, type AnalysisResult, type AnalyzeRequest } from "./types";
 
 export type AnalyzeErrorKind = "invalid_input" | "rate_limited" | "server" | "network";
 
@@ -13,6 +13,8 @@ export class AnalyzeError extends Error {
 
 // Long enough in mock mode to see every loading step.
 const MOCK_DELAY_MS = 9_000;
+// Upper bound for a stuck edge function or LLM call; normal runs take 10-20 s.
+const REQUEST_TIMEOUT_MS = 60_000;
 
 export async function analyze(
   request: AnalyzeRequest,
@@ -25,35 +27,52 @@ export async function analyze(
     return mockAnalysis;
   }
 
-  let response: Response;
+  // Own controller so both the user's cancel and the timeout abort the request.
+  const controller = new AbortController();
+  const abort = () => controller.abort();
+  signal?.addEventListener("abort", abort, { once: true });
+  const timer = setTimeout(abort, REQUEST_TIMEOUT_MS);
+
   try {
-    response = await fetch(`${supabaseUrl}/functions/v1/analyze`, {
-      method: "POST",
-      headers: supabaseHeaders(),
-      body: JSON.stringify(request),
-      signal,
-    });
-  } catch (error) {
-    if (signal?.aborted) throw error;
-    throw new AnalyzeError("network");
+    let response: Response;
+    try {
+      response = await fetch(`${supabaseUrl}/functions/v1/analyze`, {
+        method: "POST",
+        headers: supabaseHeaders(),
+        body: JSON.stringify(request),
+        signal: controller.signal,
+      });
+    } catch (error) {
+      if (signal?.aborted) throw error;
+      // Aborted without a user cancel means the timeout fired.
+      throw new AnalyzeError(controller.signal.aborted ? "server" : "network");
+    }
+
+    if (response.status === 400) throw new AnalyzeError("invalid_input");
+    if (response.status === 429) throw new AnalyzeError("rate_limited");
+    if (!response.ok) throw new AnalyzeError("server");
+
+    const result = parseAnalysisResult(await response.json().catch(() => null));
+    if (!result) throw new AnalyzeError("server");
+    return result;
+  } finally {
+    clearTimeout(timer);
+    signal?.removeEventListener("abort", abort);
   }
-
-  if (response.status === 400) throw new AnalyzeError("invalid_input");
-  if (response.status === 429) throw new AnalyzeError("rate_limited");
-  if (!response.ok) throw new AnalyzeError("server");
-
-  const body: unknown = await response.json().catch(() => null);
-  if (!isAnalysisResult(body)) throw new AnalyzeError("server");
-  return body;
 }
 
 function wait(ms: number, signal?: AbortSignal): Promise<void> {
   return new Promise((resolve, reject) => {
-    const timer = setTimeout(resolve, ms);
-    signal?.addEventListener("abort", () => {
+    if (signal?.aborted) return reject(signal.reason);
+    const onAbort = () => {
       clearTimeout(timer);
-      reject(signal.reason);
-    });
+      reject(signal?.reason);
+    };
+    const timer = setTimeout(() => {
+      signal?.removeEventListener("abort", onAbort);
+      resolve();
+    }, ms);
+    signal?.addEventListener("abort", onAbort, { once: true });
   });
 }
 
