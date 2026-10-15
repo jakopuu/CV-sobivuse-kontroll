@@ -29,7 +29,7 @@ Frontend eeldab Supabase'ilt järgmist:
 | `POST /functions/v1/analyze` | Päring `{ job_text, cv_text }`, vastus vastavalt lepingule (`lib/types.ts`). Vead: `400`, `429`, `500`. |
 | Tabel `feedback` | `anon` võib teha ainult `insert`: `analysis_id`, `helpful`, `comment` |
 | Tabel `waitlist` | `anon` võib teha ainult `insert`: `email` (unikaalne, korduv e-post annab `409`) |
-| CORS | Edge Function lubab ainult ühe päritolu (secret `ALLOWED_ORIGIN`). Lokaalseks testimiseks päris API vastu peab see olema `http://localhost:3000`, tootmises Verceli domeen. |
+| CORS | Edge Function lubab ainult ühe päritolu (secret `ALLOWED_ORIGIN`). See peab olema `http://localhost:3000`. |
 
 ## Veaolekute eelvaade
 
@@ -44,6 +44,11 @@ components/results/  tulemuse vaade ja selle osad
 lib/              API klient, Supabase'i insertid, tüübid, võltsandmed
 ```
 
-## Deploy
+## Tootmisversioon kohalikus arvutis
 
-Vercelis tuleb **Root Directory** väärtuseks panna `cv-check` ja keskkonnamuutujatesse lisada kaks ülaltoodud `NEXT_PUBLIC_` väärtust.
+```bash
+npm run build
+npm start
+```
+
+`NEXT_PUBLIC_` väärtused loetakse buildi ajal, seega pärast `.env.local` muutmist tuleb uuesti `npm run build` teha.
