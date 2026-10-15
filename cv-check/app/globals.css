@@ -1,26 +1,122 @@
 @import "tailwindcss";
 
+/* Design tokens. Components reference these, never raw hex values. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  --paper: #ffffff;
+  --mist: #f2f4f7;
+  --ink: #1a1d24;
+  --ink-muted: #545a66;
+  --ink-subtle: #868c98;
+  --line: #e1e4ea;
+  --line-strong: #c9ced8;
+  --brand: #0072ce;
+  --brand-ink: #ffffff;
+  --marker: #ffe14d;
+  --marker-ink: #1a1d24;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --critical: #c0362c;
+  --important: #b76e00;
+  --optional: #6b7280;
+  --good: #12805c;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --paper: #12151a;
+    --mist: #1b1f26;
+    --ink: #eceef2;
+    --ink-muted: #a5abb6;
+    --ink-subtle: #737a86;
+    --line: #2a2f38;
+    --line-strong: #3a404b;
+    --brand: #4da3ff;
+    --brand-ink: #0b1220;
+    --marker: #e6c94a;
+    --marker-ink: #1a1d24;
+
+    --critical: #f07167;
+    --important: #f2a93b;
+    --optional: #9aa1ad;
+    --good: #4cc38a;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@theme inline {
+  --color-paper: var(--paper);
+  --color-mist: var(--mist);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-subtle: var(--ink-subtle);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-brand: var(--brand);
+  --color-brand-ink: var(--brand-ink);
+  --color-marker: var(--marker);
+  --color-critical: var(--critical);
+  --color-important: var(--important);
+  --color-optional: var(--optional);
+  --color-good: var(--good);
+
+  --font-sans: var(--font-schibsted);
+}
+
+@layer base {
+  html {
+    color-scheme: light dark;
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-sans), system-ui, sans-serif;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--brand) 20%, transparent);
+  }
+
+  /* One keyboard focus style for every interactive element. */
+  :focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+  }
+}
+
+/* Shared text field look: textareas and inputs. Size and padding stay per component. */
+@utility field {
+  @apply rounded-[10px] border border-line bg-mist text-[15px] text-ink transition-colors placeholder:text-ink-subtle hover:border-line-strong focus:border-brand focus:bg-paper focus:ring-3 focus:ring-brand/15 focus:outline-none;
+}
+
+/* Secondary dark button used for copy, feedback and waitlist actions. */
+@utility button-dark {
+  @apply inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-[10px] bg-ink px-5 text-[15px] font-semibold text-paper transition-colors hover:bg-[color-mix(in_srgb,var(--ink)_85%,var(--paper))] disabled:opacity-60;
+}
+
+/* Highlighter stroke over the lower part of the line, like a recruiter's marker. */
+@utility marker {
+  color: var(--marker-ink);
+  background: linear-gradient(
+    transparent 14%,
+    var(--marker) 14%,
+    var(--marker) 94%,
+    transparent 94%
+  );
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+/* Score ring draws from empty to its value; "to" is the element's own offset. */
+@keyframes ring-draw {
+  from {
+    stroke-dashoffset: var(--ring-length);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

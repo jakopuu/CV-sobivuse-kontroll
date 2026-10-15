@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CV sobivuse kontroll: frontend
 
-## Getting Started
+Next.js rakendus. Kasutaja kleebib töökuulutuse ja oma CV ning näeb sobivusskoori, puudusi, CV parandusi, puuduvaid märksõnu ja valmis kaaskirja.
 
-First, run the development server:
+## Käivitamine
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Ava [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Keskkonnamuutujad
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Kopeeri `.env.example` failiks `.env.local` ja täida väärtused.
 
-## Learn More
+| Muutuja | Kus | Milleks |
+|---|---|---|
+| `NEXT_PUBLIC_MOCK_API=1` | brauser | Kogu UI töötab võltsandmetega, backendi ega Supabase'i pole vaja. |
+| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | brauser | Tagasiside ja ootenimekirja kirjutamine. Avalikud, RLS lubab ainult `insert`. |
+| `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `IP_HASH_SALT` | server | `app/api/analyze` route: limiit ja tulemuse salvestamine. |
+| `LLM_API_KEY` | server | AI kutse. Tühjana töötab backend demorežiimis. |
 
-To learn more about Next.js, take a look at the following resources:
+Serveri muutujatele ei tohi kunagi `NEXT_PUBLIC_` eesliidet panna, muidu jõuavad need brauserisse.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Frontend eeldab:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Mida | Kuidas |
+|---|---|
+| `POST /api/analyze` | Päring `{ job_text, cv_text }`, vastus vastavalt lepingule (`lib/types.ts`). Vead: `400`, `429`, `500`. |
+| Tabel `feedback` | `anon` võib teha ainult `insert`: `analysis_id`, `helpful`, `comment` |
+| Tabel `waitlist` | `anon` võib teha ainult `insert`: `email` (unikaalne, korduv e-post annab `409`) |
 
-## Deploy on Vercel
+## Veaolekute eelvaade
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Võltsrežiimis saab iga veaolekut vaadata URL-i parameetriga: `?mock_error=400`, `429`, `500` või `network`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Struktuur
+
+```
+app/              leht, layout ja disainimuutujad (globals.css)
+components/       vorm, laadimisolek, veateade
+components/results/  tulemuse vaade ja selle osad
+lib/              API klient, Supabase'i insertid, tüübid, võltsandmed
+app/api/analyze/  backend: AI analüüs (backendi inimese kood)
+```
+
+## Tootmisversioon kohalikus arvutis
+
+```bash
+npm run build
+npm start
+```
+
+`NEXT_PUBLIC_` väärtused loetakse buildi ajal, seega pärast `.env.local` muutmist tuleb uuesti `npm run build` teha.
