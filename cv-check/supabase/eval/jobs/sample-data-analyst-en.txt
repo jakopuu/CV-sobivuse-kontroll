@@ -1,0 +1,20 @@
+
+Junior Data Analyst – NordRetail, Tallinn (hybrid)
+
+NordRetail is a fast-growing Baltic e-commerce company. We are looking for a Junior Data Analyst to join our Commercial Insights team.
+
+What you'll do:
+- Build and maintain Power BI dashboards for sales and marketing
+- Write SQL queries to answer business questions
+- Present findings to stakeholders in a clear, actionable way
+
+Requirements:
+- Solid SQL skills (must have)
+- Experience with a BI tool (Power BI or Tableau)
+- Fluent English; Estonian is a plus
+- Strong communication and stakeholder management skills
+
+Nice to have:
+- Python (pandas)
+- Experience in retail or e-commerce
+- Understanding of A/B testing

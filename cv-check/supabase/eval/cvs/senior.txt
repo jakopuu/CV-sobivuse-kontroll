@@ -1,0 +1,19 @@
+Andres Kask
+Tartu | andres.kask@example.com
+
+KOKKUVÕTE
+12 aastat tarkvaraarenduses, neist 5 aastat tiimijuhina. Fookus hajusatel backend-süsteemidel ja pilveinfrastruktuuril.
+
+KOGEMUS
+Arendusjuht, FinTech AS (2020–praegu)
+- Juhin 8-liikmelist arendusmeeskonda, värbasin 5 arendajat
+- Viisin monoliidi üle mikroteenustele (Kotlin, Kafka, Kubernetes), juurutusaeg lühenes 2 päevalt 30 minutile
+- Vastutan AWS-i infrastruktuuri ja kulude eest (aastas ~400 000 €)
+
+Vanemarendaja, Logistika OÜ (2014–2020)
+- Arendasin Java ja PostgreSQL baasil marsruudiplaneerimise süsteemi
+- Juhendasin juuniorarendajaid ja praktikante
+
+OSKUSED
+Java, Kotlin, PostgreSQL, Kafka, Kubernetes, AWS, Terraform, Scrum
+Keeled: eesti, inglise (C1), vene (B1)
