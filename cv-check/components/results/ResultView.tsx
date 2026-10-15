@@ -4,6 +4,7 @@ import { useEffect, useRef, type ReactNode } from "react";
 import { ArrowLeft } from "lucide-react";
 import type { AnalysisResult } from "@/lib/types";
 import { CoverLetter } from "./CoverLetter";
+import { FeedbackPanel } from "./FeedbackPanel";
 import { Improvements } from "./Improvements";
 import { KeywordChips } from "./KeywordChips";
 import { MissingList } from "./MissingList";
@@ -60,6 +61,8 @@ export function ResultView({ result, onEdit }: ResultViewProps) {
           </Section>
         </div>
       </div>
+
+      <FeedbackPanel analysisId={result.id} />
     </div>
   );
 }
