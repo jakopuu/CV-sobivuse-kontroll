@@ -1,0 +1,19 @@
+
+Backend arendaja – Pilvelahendused OÜ, Tallinn
+
+Otsime oma meeskonda backend arendajat, kes aitab ehitada logistikaettevõtetele mõeldud SaaS-platvormi.
+
+Sinu ülesanded:
+- REST API-de arendamine ja hooldamine (Java, Spring Boot)
+- Andmebaasi skeemide kujundamine ja SQL-päringute optimeerimine (PostgreSQL)
+- Koodiülevaatused ja juuniorkolleegide juhendamine
+
+Ootame sinult:
+- vähemalt 3 aastat kogemust Java backend-arenduses (nõutud)
+- head SQL-i oskust (nõutud)
+- kogemust Dockeri ja CI/CD-ga
+- eesti ja inglise keele oskust
+
+Kasuks tuleb:
+- Kubernetes, AWS
+- kogemus Agile/Scrum meeskonnas
