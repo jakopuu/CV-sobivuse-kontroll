@@ -1,4 +1,4 @@
-import { z } from "npm:zod@4";
+import { z } from "zod";
 
 export const MIN_LEN = 200;
 export const MAX_LEN = 15_000;
@@ -21,7 +21,8 @@ export const AiResult = z.object({
 });
 export type AiResult = z.infer<typeof AiResult>;
 
-const { $schema: _, ...TOOL_SCHEMA } = z.toJSONSchema(AiResult);
+const TOOL_SCHEMA = z.toJSONSchema(AiResult);
+delete TOOL_SCHEMA.$schema;
 
 export const SYSTEM_PROMPT = `You are an experienced recruiter and career coach in the Estonian job market. You compare a job posting with a candidate's CV and return a structured analysis by calling the submit_analysis tool.
 
@@ -87,8 +88,44 @@ export function finalize(r: AiResult): AiResult {
   return hasCritical ? { ...r, match_score: Math.min(r.match_score, 70) } : r;
 }
 
-/** Calls the LLM, validates the JSON, retries once on any failure. */
-export async function analyze(apiKey: string, job: string, cv: string) {
+// Demo mode result, returned when LLM_API_KEY is not set (presentations, frontend wiring).
+export const MOCK_RESULT: AiResult = {
+  match_score: 65,
+  language: "et",
+  job_title: "Backend arendaja (demo)",
+  summary: "Tugev tehniline sobivus, aga nõutud juhtimiskogemus pole CV-s nähtav.",
+  missing: [
+    { item: "Meeskonna juhtimine", importance: "critical", suggestion: "Kui oled juhendanud praktikante või vedanud projekti, kirjuta see eraldi punktina välja." },
+    { item: "Docker ja CI/CD", importance: "important", suggestion: "Kui oled projekte Dockeriga käivitanud, lisa see oskuste ja projekti kirjelduse juurde." },
+    { item: "Kubernetes", importance: "nice_to_have", suggestion: "Pole kohustuslik. Kui oled seda proovinud, maini lühidalt." },
+  ],
+  cv_improvements: [
+    { suggestion: "Lisa praktika kirjeldusse mõõdetav tulemus, nt kui palju testide katvus tõusis." },
+    { suggestion: "Kasuta kuulutuse sõnastust: \"PostgreSQL\" asemel või kõrval kirjuta \"SQL\"." },
+    { suggestion: "Too meeskonnaprojekti juures välja, mille eest just sina vastutasid." },
+  ],
+  keywords_missing: ["CI/CD", "Docker", "Kubernetes", "Agile"],
+  cover_letter: `Tere!
+
+Kandideerin Pilvelahendused OÜ backend arendaja ametikohale. Kuulutuses rõhutate Java ja SQL-i oskust ning just nendega olen viimased aastad kõige rohkem töötanud.
+
+Praktikal Väike OÜ-s arendasin Spring Booti REST API-sid tellimuste haldamiseks ja kasutasin PostgreSQL andmebaasi. Kirjutasin teenustele JUnit teste ning tõstsin testide katvuse 40%-lt 65%-le. Ülikoolis vastutasin neljaliikmelise meeskonnaprojekti backendi eest, kus ehitasime Java ja Reacti baasil veebipoe.
+
+Praktikal õppisin, et hea API ei tähenda ainult töötavat koodi. Sama oluline on selge dokumentatsioon, mõistlikud veateated ja testid, mis annavad kolleegidele kindluse muudatusi teha. Sama põhimõtte järgi tahaksin töötada ka teie meeskonnas.
+
+Teie platvorm logistikaettevõtetele tundub mulle huvitav, sest seal on päris andmemahud ja päris kasutajad. Tahaksin õppida kogenud kolleegidelt ning panustada nii API-de arendusse kui ka päringute optimeerimisse.
+
+Meeskonna juhtimise kogemust mul veel ei ole, kuid olen valmis selles kasvama ja võtma vastutust oma koodi kvaliteedi eest.
+
+Hea meelega räägin oma kogemusest ja projektidest lähemalt vestlusel.
+
+Lugupidamisega
+Mari Tamm`,
+};
+
+/** Calls the LLM, validates the JSON, retries once on any failure. No API key → demo result. */
+export async function analyze(apiKey: string | undefined, job: string, cv: string) {
+  if (!apiKey) return { result: MOCK_RESULT, tokens: 0 };
   let tokens = 0;
   for (let attempt = 1; ; attempt++) {
     try {
