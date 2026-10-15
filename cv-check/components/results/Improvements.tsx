@@ -1,4 +1,5 @@
 import type { CvImprovement } from "@/lib/types";
+import { keepCaseEndings } from "@/lib/format";
 
 export function Improvements({ items }: { items: CvImprovement[] }) {
   if (items.length === 0) {
@@ -12,7 +13,7 @@ export function Improvements({ items }: { items: CvImprovement[] }) {
           <span aria-hidden className="w-5 shrink-0 font-semibold text-brand tabular-nums">
             {index + 1}.
           </span>
-          <p className="max-w-[65ch] leading-relaxed">{item.suggestion}</p>
+          <p className="max-w-[65ch] leading-relaxed">{keepCaseEndings(item.suggestion)}</p>
         </li>
       ))}
     </ol>

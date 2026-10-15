@@ -3,6 +3,7 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { ArrowLeft } from "lucide-react";
 import type { AnalysisResult } from "@/lib/types";
+import { keepCaseEndings } from "@/lib/format";
 import { CoverLetter } from "./CoverLetter";
 import { FeedbackPanel } from "./FeedbackPanel";
 import { Improvements } from "./Improvements";
@@ -34,7 +35,7 @@ export function ResultView({ result, onEdit }: ResultViewProps) {
           </h2>
           <ScoreRing score={result.match_score} />
           <p lang={result.language} className="mt-6 text-[19px] leading-snug font-medium text-pretty">
-            {result.summary}
+            {keepCaseEndings(result.summary)}
           </p>
           <button
             type="button"

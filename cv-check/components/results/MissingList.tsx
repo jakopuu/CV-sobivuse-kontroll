@@ -1,4 +1,5 @@
 import type { Importance, MissingItem } from "@/lib/types";
+import { keepCaseEndings } from "@/lib/format";
 
 const GROUPS: { importance: Importance; label: string; color: string }[] = [
   { importance: "critical", label: "Kriitiline", color: "var(--critical)" },
@@ -32,9 +33,9 @@ export function MissingList({ items }: { items: MissingItem[] }) {
                   className="border-l-[3px] pl-4"
                   style={{ borderColor: color }}
                 >
-                  <p className="font-semibold">{item.item}</p>
+                  <p className="font-semibold">{keepCaseEndings(item.item)}</p>
                   <p className="mt-1 max-w-[65ch] leading-relaxed text-ink-muted">
-                    {item.suggestion}
+                    {keepCaseEndings(item.suggestion)}
                   </p>
                 </li>
               ))}
