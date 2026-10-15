@@ -12,6 +12,7 @@
   --brand: #0072ce;
   --brand-ink: #ffffff;
   --marker: #ffe14d;
+  --marker-ink: #1a1d24;
 
   --critical: #c0362c;
   --important: #b76e00;
@@ -30,7 +31,8 @@
     --line-strong: #3a404b;
     --brand: #4da3ff;
     --brand-ink: #0b1220;
-    --marker: #8a7414;
+    --marker: #e6c94a;
+    --marker-ink: #1a1d24;
 
     --critical: #f07167;
     --important: #f2a93b;
@@ -77,6 +79,26 @@
   :focus-visible {
     outline: 2px solid var(--brand);
     outline-offset: 2px;
+  }
+}
+
+/* Highlighter stroke over the lower part of the line, like a recruiter's marker. */
+@utility marker {
+  color: var(--marker-ink);
+  background: linear-gradient(
+    transparent 14%,
+    var(--marker) 14%,
+    var(--marker) 94%,
+    transparent 94%
+  );
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+/* Score ring draws from empty to its value; "to" is the element's own offset. */
+@keyframes ring-draw {
+  from {
+    stroke-dashoffset: var(--ring-length);
   }
 }
 

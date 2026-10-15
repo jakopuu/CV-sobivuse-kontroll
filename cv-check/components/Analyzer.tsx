@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { analyze, AnalyzeError, type AnalyzeErrorKind } from "@/lib/api";
 import type { AnalysisResult } from "@/lib/types";
 import { AnalyzeForm } from "./AnalyzeForm";
+import { ResultView } from "./results/ResultView";
 
 type State =
   | { status: "idle" }
@@ -41,6 +42,10 @@ export function Analyzer() {
   function handleCancel() {
     controllerRef.current?.abort();
     setState({ status: "idle" });
+  }
+
+  if (state.status === "success") {
+    return <ResultView result={state.result} onEdit={() => setState({ status: "idle" })} />;
   }
 
   return (
