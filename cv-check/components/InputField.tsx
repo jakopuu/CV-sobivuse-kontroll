@@ -17,8 +17,9 @@ interface InputFieldProps {
 export function InputField({ step, label, placeholder, value, onChange, disabled }: InputFieldProps) {
   const id = useId();
   const length = value.trim().length;
-  const tooShort = length < INPUT_MIN_CHARS;
-  const tooLong = length > INPUT_MAX_CHARS;
+  const status = inputStatus(value);
+  const tooShort = status === "short";
+  const tooLong = status === "long";
 
   return (
     <div className="flex flex-col">
@@ -38,7 +39,7 @@ export function InputField({ step, label, placeholder, value, onChange, disabled
         spellCheck={false}
         aria-invalid={tooLong || undefined}
         aria-describedby={`${id}-count`}
-        className="min-h-56 w-full resize-y rounded-[10px] border border-line bg-mist px-4 py-3.5 text-[15px] leading-relaxed text-ink transition-colors placeholder:text-ink-subtle hover:border-line-strong focus:border-brand focus:bg-paper focus:ring-3 focus:ring-brand/15 focus:outline-none disabled:opacity-60 aria-invalid:border-critical sm:min-h-80"
+        className="field min-h-56 w-full resize-y px-4 py-3.5 leading-relaxed disabled:opacity-60 aria-invalid:border-critical sm:min-h-80"
       />
 
       <p
@@ -65,7 +66,9 @@ export function InputField({ step, label, placeholder, value, onChange, disabled
   );
 }
 
-export function isValidInput(value: string): boolean {
+export function inputStatus(value: string): "short" | "ok" | "long" {
   const length = value.trim().length;
-  return length >= INPUT_MIN_CHARS && length <= INPUT_MAX_CHARS;
+  if (length < INPUT_MIN_CHARS) return "short";
+  if (length > INPUT_MAX_CHARS) return "long";
+  return "ok";
 }

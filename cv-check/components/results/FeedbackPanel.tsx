@@ -33,74 +33,67 @@ function Feedback({ analysisId }: { analysisId: string }) {
     }
   }
 
-  if (state === "sent") {
-    return (
-      <section aria-labelledby={`${commentId}-title`}>
-        <h2 id={`${commentId}-title`} className="text-[19px] font-semibold">
-          Kas see aitas?
-        </h2>
-        <p className="mt-3 flex items-center gap-2 text-ink-muted">
-          <Check aria-hidden className="size-4 text-good" strokeWidth={2.5} />
-          Aitäh, tagasiside on saadetud.
-        </p>
-      </section>
-    );
-  }
-
   return (
     <section aria-labelledby={`${commentId}-title`}>
       <h2 id={`${commentId}-title`} className="text-[19px] font-semibold">
         Kas see aitas?
       </h2>
 
-      <form onSubmit={handleSubmit}>
-        <div role="group" aria-label="Hinnang" className="mt-4 flex gap-2">
-          <VoteButton
-            label="Jah"
-            icon={<ThumbsUp aria-hidden className="size-4" />}
-            pressed={helpful === true}
-            onClick={() => setHelpful(true)}
-          />
-          <VoteButton
-            label="Ei"
-            icon={<ThumbsDown aria-hidden className="size-4" />}
-            pressed={helpful === false}
-            onClick={() => setHelpful(false)}
-          />
-        </div>
-
-        {/* Comment is offered only after a vote, so a single row is inserted. */}
-        {helpful !== null && (
-          <div className="mt-5">
-            <label htmlFor={commentId} className="text-sm font-medium">
-              {helpful ? "Mis oli kõige kasulikum?" : "Mis oleks võinud parem olla?"}{" "}
-              <span className="font-normal text-ink-subtle">(valikuline)</span>
-            </label>
-            <textarea
-              id={commentId}
-              value={comment}
-              onChange={(event) => setComment(event.target.value)}
-              rows={3}
-              maxLength={1000}
-              className="mt-2 w-full resize-y rounded-[10px] border border-line bg-mist px-4 py-3 text-[15px] leading-relaxed transition-colors hover:border-line-strong focus:border-brand focus:bg-paper focus:ring-3 focus:ring-brand/15 focus:outline-none"
+      {state === "sent" ? (
+        <p className="mt-3 flex items-center gap-2 text-ink-muted">
+          <Check aria-hidden className="size-4 text-good" strokeWidth={2.5} />
+          Aitäh, tagasiside on saadetud.
+        </p>
+      ) : (
+        <form onSubmit={handleSubmit}>
+          <div role="group" aria-label="Hinnang" className="mt-4 flex gap-2">
+            <VoteButton
+              label="Jah"
+              icon={<ThumbsUp aria-hidden className="size-4" />}
+              pressed={helpful === true}
+              onClick={() => setHelpful(true)}
             />
-            <div className="mt-3 flex items-center gap-4">
-              <button
-                type="submit"
-                disabled={state === "sending"}
-                className="h-11 rounded-[10px] bg-ink px-5 text-[15px] font-semibold text-paper transition-colors hover:bg-[color-mix(in_srgb,var(--ink)_85%,var(--paper))] disabled:opacity-60"
-              >
-                {state === "sending" ? "Saadan…" : "Saada tagasiside"}
-              </button>
-              {state === "error" && (
-                <p role="alert" className="text-sm text-critical">
-                  Saatmine ebaõnnestus. Proovi uuesti.
-                </p>
-              )}
-            </div>
+            <VoteButton
+              label="Ei"
+              icon={<ThumbsDown aria-hidden className="size-4" />}
+              pressed={helpful === false}
+              onClick={() => setHelpful(false)}
+            />
           </div>
-        )}
-      </form>
+
+          {/* Comment is offered only after a vote, so a single row is inserted. */}
+          {helpful !== null && (
+            <div className="mt-5">
+              <label htmlFor={commentId} className="text-sm font-medium">
+                {helpful ? "Mis oli kõige kasulikum?" : "Mis oleks võinud parem olla?"}{" "}
+                <span className="font-normal text-ink-subtle">(valikuline)</span>
+              </label>
+              <textarea
+                id={commentId}
+                value={comment}
+                onChange={(event) => setComment(event.target.value)}
+                rows={3}
+                maxLength={1000}
+                className="field mt-2 w-full resize-y px-4 py-3 leading-relaxed"
+              />
+              <div className="mt-3 flex items-center gap-4">
+                <button
+                  type="submit"
+                  disabled={state === "sending"}
+                  className="button-dark"
+                >
+                  {state === "sending" ? "Saadan…" : "Saada tagasiside"}
+                </button>
+                {state === "error" && (
+                  <p role="alert" className="text-sm text-critical">
+                    Saatmine ebaõnnestus. Proovi uuesti.
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+        </form>
+      )}
     </section>
   );
 }
@@ -170,12 +163,12 @@ function Waitlist() {
               placeholder="nimi@email.ee"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              className="h-11 min-w-0 flex-1 rounded-[10px] border border-line bg-mist px-4 text-[15px] transition-colors placeholder:text-ink-subtle hover:border-line-strong focus:border-brand focus:bg-paper focus:ring-3 focus:ring-brand/15 focus:outline-none"
+              className="field h-11 min-w-0 flex-1 px-4"
             />
             <button
               type="submit"
               disabled={state === "sending"}
-              className="h-11 shrink-0 rounded-[10px] bg-ink px-5 text-[15px] font-semibold text-paper transition-colors hover:bg-[color-mix(in_srgb,var(--ink)_85%,var(--paper))] disabled:opacity-60"
+              className="button-dark"
             >
               {state === "sending" ? "Salvestan…" : "Teavita mind"}
             </button>

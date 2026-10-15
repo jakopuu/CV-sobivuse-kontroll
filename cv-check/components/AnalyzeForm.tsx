@@ -3,9 +3,10 @@
 import type { FormEvent } from "react";
 import { Lock } from "lucide-react";
 import type { AnalyzeErrorKind } from "@/lib/api";
-import { INPUT_MIN_CHARS } from "@/lib/types";
+import { formatNumber } from "@/lib/format";
+import { INPUT_MAX_CHARS, INPUT_MIN_CHARS } from "@/lib/types";
 import { ErrorNotice } from "./ErrorNotice";
-import { InputField, isValidInput } from "./InputField";
+import { InputField, inputStatus } from "./InputField";
 import { LoadingSteps } from "./LoadingSteps";
 
 interface AnalyzeFormProps {
@@ -29,7 +30,12 @@ export function AnalyzeForm({
   onCancel,
   error,
 }: AnalyzeFormProps) {
-  const canSubmit = isValidInput(jobText) && isValidInput(cvText);
+  const statuses = [inputStatus(jobText), inputStatus(cvText)];
+  const canSubmit = statuses.every((status) => status === "ok");
+  // Too long wins: it is the one the user cannot fix by adding text.
+  const hint = statuses.includes("long")
+    ? `Tekst on liiga pikk. Lühenda see kuni ${formatNumber(INPUT_MAX_CHARS)} tähemärgini.`
+    : `Mõlemas kastis peab olema vähemalt ${INPUT_MIN_CHARS} tähemärki.`;
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -77,11 +83,7 @@ export function AnalyzeForm({
             </button>
 
             <div id="submit-hint" className="flex flex-col gap-1 text-sm leading-snug">
-              {!canSubmit && (
-                <p className="text-ink">
-                  Mõlemas kastis peab olema vähemalt {INPUT_MIN_CHARS} tähemärki.
-                </p>
-              )}
+              {!canSubmit && <p className="text-ink">{hint}</p>}
               <p className="flex gap-2 text-ink-muted">
                 <Lock aria-hidden className="mt-px size-4 shrink-0" />
                 Me ei salvesta su CV-d. Andmeid kasutatakse ainult analüüsiks.

@@ -13,24 +13,26 @@ interface CoverLetterProps {
 export function CoverLetter({ text, language }: CoverLetterProps) {
   // Editable so the user can fix details before copying.
   const [value, setValue] = useState(text);
-  const [copied, setCopied] = useState(false);
+  const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
+  const copied = copyState === "copied";
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (!copied) return;
-    const timer = setTimeout(() => setCopied(false), COPIED_RESET_MS);
+    const timer = setTimeout(() => setCopyState("idle"), COPIED_RESET_MS);
     return () => clearTimeout(timer);
   }, [copied]);
 
   async function handleCopy() {
     try {
       await navigator.clipboard.writeText(value);
+      setCopyState("copied");
     } catch {
-      // Clipboard API is blocked in some in-app browsers (e.g. Facebook); select the text instead.
+      // Clipboard API is blocked in some in-app browsers (e.g. Facebook).
+      // Fall back to the legacy command; if that fails too, leave the text selected.
       textareaRef.current?.select();
-      document.execCommand("copy");
+      setCopyState(document.execCommand("copy") ? "copied" : "failed");
     }
-    setCopied(true);
   }
 
   return (
@@ -42,17 +44,23 @@ export function CoverLetter({ text, language }: CoverLetterProps) {
         lang={language}
         aria-label="Kaaskiri"
         rows={16}
-        className="w-full resize-y rounded-[10px] border border-line bg-mist px-5 py-4 text-[15px] leading-[1.7] text-ink transition-colors hover:border-line-strong focus:border-brand focus:bg-paper focus:ring-3 focus:ring-brand/15 focus:outline-none"
+        className="field w-full resize-y px-5 py-4 leading-[1.7]"
       />
 
       <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="max-w-[52ch] text-sm leading-snug text-ink-muted">
-          Vaata kaaskiri enne saatmist üle. Tehisintellekt võib eksida.
-        </p>
+        {copyState === "failed" ? (
+          <p role="alert" className="max-w-[52ch] text-sm leading-snug text-critical">
+            Brauser ei lubanud kopeerida. Tekst on valitud, kopeeri see käsitsi.
+          </p>
+        ) : (
+          <p className="max-w-[52ch] text-sm leading-snug text-ink-muted">
+            Vaata kaaskiri enne saatmist üle. Tehisintellekt võib eksida.
+          </p>
+        )}
         <button
           type="button"
           onClick={handleCopy}
-          className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-[10px] bg-ink px-5 text-[15px] font-semibold text-paper transition-colors hover:bg-[color-mix(in_srgb,var(--ink)_85%,var(--paper))]"
+          className="button-dark"
         >
           {copied ? (
             <Check aria-hidden className="size-4" strokeWidth={2.5} />

@@ -10,8 +10,8 @@ export function KeywordChips({ keywords }: { keywords: string[] }) {
         sinu kohta päriselt kehtivad.
       </p>
       <ul className="flex flex-wrap gap-x-4 gap-y-2.5">
-        {keywords.map((keyword) => (
-          <li key={keyword}>
+        {keywords.map((keyword, index) => (
+          <li key={index}>
             <mark className="marker inline-block px-1.5 py-0.5 text-[16px] leading-snug font-medium">
               {keyword}
             </mark>
