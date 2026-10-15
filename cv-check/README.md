@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CV sobivuse kontroll: frontend
 
-## Getting Started
+Next.js rakendus. Kasutaja kleebib töökuulutuse ja oma CV ning näeb sobivusskoori, puudusi, CV parandusi, puuduvaid märksõnu ja valmis kaaskirja.
 
-First, run the development server:
+## Käivitamine
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Ava [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Supabase'i ühendamine
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Ilma keskkonnamuutujateta töötab rakendus **võltsandmetega**, nii et kasutajaliidest saab arendada ka ilma backendita. Päris API kasutamiseks kopeeri `.env.example` failiks `.env.local` ja täida väärtused:
 
-## Learn More
+```bash
+NEXT_PUBLIC_SUPABASE_URL=https://<projekt>.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon võti>
+```
 
-To learn more about Next.js, take a look at the following resources:
+Mõlemad väärtused on avalikud: andmeid kaitsevad RLS ja Edge Function. `LLM_API_KEY` ja `service_role` võti ei tohi kunagi siia sattuda.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Frontend eeldab Supabase'ilt järgmist:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Mida | Kuidas |
+|---|---|
+| `POST /functions/v1/analyze` | Päring `{ job_text, cv_text }`, vastus vastavalt lepingule (`lib/types.ts`). Vead: `400`, `429`, `500`. |
+| Tabel `feedback` | `anon` võib teha ainult `insert`: `analysis_id`, `helpful`, `comment` |
+| Tabel `waitlist` | `anon` võib teha ainult `insert`: `email` (unikaalne, korduv e-post annab `409`) |
+| CORS | Edge Function lubab ainult ühe päritolu (secret `ALLOWED_ORIGIN`). Lokaalseks testimiseks päris API vastu peab see olema `http://localhost:3000`, tootmises Verceli domeen. |
 
-## Deploy on Vercel
+## Veaolekute eelvaade
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Võltsrežiimis saab iga veaolekut vaadata URL-i parameetriga: `?mock_error=400`, `429`, `500` või `network`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Struktuur
+
+```
+app/              leht, layout ja disainimuutujad (globals.css)
+components/       vorm, laadimisolek, veateade
+components/results/  tulemuse vaade ja selle osad
+lib/              API klient, Supabase'i insertid, tüübid, võltsandmed
+```
+
+## Deploy
+
+Vercelis tuleb **Root Directory** väärtuseks panna `cv-check` ja keskkonnamuutujatesse lisada kaks ülaltoodud `NEXT_PUBLIC_` väärtust.
