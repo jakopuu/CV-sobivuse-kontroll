@@ -4,6 +4,7 @@ import type { FormEvent } from "react";
 import { Lock } from "lucide-react";
 import { INPUT_MIN_CHARS } from "@/lib/types";
 import { InputField, isValidInput } from "./InputField";
+import { LoadingSteps } from "./LoadingSteps";
 
 interface AnalyzeFormProps {
   jobText: string;
@@ -11,6 +12,8 @@ interface AnalyzeFormProps {
   onJobTextChange: (value: string) => void;
   onCvTextChange: (value: string) => void;
   onSubmit: () => void;
+  loading: boolean;
+  onCancel: () => void;
 }
 
 export function AnalyzeForm({
@@ -19,12 +22,14 @@ export function AnalyzeForm({
   onJobTextChange,
   onCvTextChange,
   onSubmit,
+  loading,
+  onCancel,
 }: AnalyzeFormProps) {
   const canSubmit = isValidInput(jobText) && isValidInput(cvText);
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    if (canSubmit) onSubmit();
+    if (canSubmit && !loading) onSubmit();
   }
 
   return (
@@ -36,6 +41,7 @@ export function AnalyzeForm({
           placeholder="Kopeeri kogu kuulutuse tekst CV.ee-st, LinkedInist või firma kodulehelt."
           value={jobText}
           onChange={onJobTextChange}
+          disabled={loading}
         />
         <InputField
           step={2}
@@ -43,6 +49,7 @@ export function AnalyzeForm({
           placeholder="Kopeeri oma CV tekst Wordist või PDF-ist. Kujundust pole vaja, piisab tekstist."
           value={cvText}
           onChange={onCvTextChange}
+          disabled={loading}
         />
       </div>
 
@@ -50,28 +57,32 @@ export function AnalyzeForm({
         <span aria-hidden className="w-4 text-[17px] font-semibold text-brand tabular-nums">
           3
         </span>
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
-          <button
-            type="submit"
-            disabled={!canSubmit}
-            aria-describedby="submit-hint"
-            className="h-12 shrink-0 rounded-[10px] border border-transparent bg-brand px-6 text-[16px] font-semibold text-brand-ink transition-colors hover:bg-[color-mix(in_srgb,var(--brand)_88%,var(--ink))] disabled:cursor-not-allowed disabled:border-line disabled:bg-mist disabled:text-ink-subtle"
-          >
-            Analüüsi sobivust
-          </button>
+        {loading ? (
+          <LoadingSteps onCancel={onCancel} />
+        ) : (
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
+            <button
+              type="submit"
+              disabled={!canSubmit}
+              aria-describedby="submit-hint"
+              className="h-12 shrink-0 rounded-[10px] border border-transparent bg-brand px-6 text-[16px] font-semibold text-brand-ink transition-colors hover:bg-[color-mix(in_srgb,var(--brand)_88%,var(--ink))] disabled:cursor-not-allowed disabled:border-line disabled:bg-mist disabled:text-ink-subtle"
+            >
+              Analüüsi sobivust
+            </button>
 
-          <div id="submit-hint" className="flex flex-col gap-1 text-sm leading-snug">
-            {!canSubmit && (
-              <p className="text-ink">
-                Mõlemas kastis peab olema vähemalt {INPUT_MIN_CHARS} tähemärki.
+            <div id="submit-hint" className="flex flex-col gap-1 text-sm leading-snug">
+              {!canSubmit && (
+                <p className="text-ink">
+                  Mõlemas kastis peab olema vähemalt {INPUT_MIN_CHARS} tähemärki.
+                </p>
+              )}
+              <p className="flex gap-2 text-ink-muted">
+                <Lock aria-hidden className="mt-px size-4 shrink-0" />
+                Me ei salvesta su CV-d. Andmeid kasutatakse ainult analüüsiks.
               </p>
-            )}
-            <p className="flex gap-2 text-ink-muted">
-              <Lock aria-hidden className="mt-px size-4 shrink-0" />
-              Me ei salvesta su CV-d. Andmeid kasutatakse ainult analüüsiks.
-            </p>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </form>
   );
