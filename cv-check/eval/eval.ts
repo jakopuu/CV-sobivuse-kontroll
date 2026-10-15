@@ -1,18 +1,18 @@
 // Run every job x CV pair through the real prompt and print results for manual review.
-// Run after every prompt change:
-//   LLM_API_KEY=sk-... deno run -A supabase/eval/eval.ts
+// Run after every prompt change:  npm run eval   (needs LLM_API_KEY in .env.local)
 // Check by hand: is the score sensible, and does the cover letter claim anything the CV doesn't say?
-import { analyze } from "../functions/analyze/lib.ts";
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { analyze } from "../lib/analyze.ts";
 
-const dir = new URL(".", import.meta.url).pathname;
-const read = (sub: string) =>
-  [...Deno.readDirSync(dir + sub)].filter((f) => f.name.endsWith(".txt")).map((f) => ({
-    name: f.name,
-    text: Deno.readTextFileSync(`${dir}${sub}/${f.name}`),
-  }));
+const read = (sub: string) => {
+  const dir = join(import.meta.dirname, sub);
+  return readdirSync(dir).filter((f) => f.endsWith(".txt"))
+    .map((name) => ({ name, text: readFileSync(join(dir, name), "utf8") }));
+};
 
-const apiKey = Deno.env.get("LLM_API_KEY");
-if (!apiKey) throw new Error("Set LLM_API_KEY");
+const apiKey = process.env.LLM_API_KEY;
+if (!apiKey) throw new Error("Pane LLM_API_KEY faili .env.local");
 
 let totalTokens = 0;
 for (const job of read("jobs")) {
