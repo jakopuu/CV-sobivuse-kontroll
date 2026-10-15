@@ -1,0 +1,19 @@
+Mari Tamm
+Tallinn | mari.tamm@example.com
+
+HARIDUS
+Tallinna Tehnikaülikool, informaatika bakalaureus (2022–2025)
+
+KOGEMUS
+Tarkvaraarendaja praktikant, Väike OÜ (suvi 2024)
+- Arendasin Spring Booti REST API-sid tellimuste haldamiseks
+- Kirjutasin JUnit teste, testide katvus tõusis 40%-lt 65%-le
+- Kasutasin PostgreSQL andmebaasi ja Git'i
+
+PROJEKTID
+- Veebipood (Java, Spring Boot, React) – ülikooli meeskonnaprojekt, 4 liiget, vastutasin backendi eest
+- Isiklik eelarverakendus (TypeScript, Next.js)
+
+OSKUSED
+Java, TypeScript, SQL, Git, Docker (algtase)
+Keeled: eesti (emakeel), inglise (B2)
