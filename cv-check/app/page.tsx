@@ -1,3 +1,5 @@
+import { Analyzer } from "@/components/Analyzer";
+
 export default function Home() {
   return (
     <>
@@ -16,6 +18,8 @@ export default function Home() {
         <p className="mt-4 max-w-[52ch] text-lg text-ink-muted">
           Kleebi kuulutus ja CV. Tulemus tuleb umbes 15 sekundiga.
         </p>
+
+        <Analyzer />
       </main>
 
       <footer className="border-t border-line">
